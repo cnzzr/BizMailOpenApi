@@ -2,6 +2,7 @@ package cn.msdi.BizMailOpenApi.oauth;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
 
@@ -17,11 +18,17 @@ import oauth2.Token;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import cn.msdi.BizMailOpenApi.BaseService;
 import cn.msdi.BizMailOpenApi.OpenApiConst;
 
-public final class OAuth2 extends BaseService {
+/**
+ * OAuth 验证授权处理单例处理
+ * 
+ * @author 张宗荣
+ *
+ */
+public final class OAuth2{
 	private static Logger logger = LogManager.getLogger(OAuth2.class);
+	
 	// 使用单例模式
 	private static OAuth2 service = null;
 	private static Object lockObject = new Object();
@@ -39,7 +46,10 @@ public final class OAuth2 extends BaseService {
 			synchronized (lockObject) {
 				if (service == null) {
 					service = new OAuth2();
-					service.init();
+					boolean r = service.init();
+					if (!r) {
+						logger.error("企业邮接口配置文件 bizmail.properties 参数未配置");
+					}
 				}
 			}
 		}
@@ -61,7 +71,7 @@ public final class OAuth2 extends BaseService {
 			logger.debug(f.getAbsolutePath());
 			p.load(f);
 		} catch (IOException e) {
-			logger.error("企业邮接口Key配置文件 bizmail.properties 未找到", e);
+			logger.error("企业邮接口配置文件 bizmail.properties 未找到", e);
 		}
 		String clientId = p.getValue("client_id");
 		String clientSecret = p.getValue("client_secret");
@@ -71,15 +81,22 @@ public final class OAuth2 extends BaseService {
 		client.setClient_id(clientId); // AppID
 		client.setClient_secret(clientSecret); // Secret
 
-		return true;
+		return StringUtil.isNotBlank(clientId) && StringUtil.isNotBlank(clientSecret);
 	}
 
+	/**
+	 * 获取OAuth 验证所需 access_token
+	 * TODO Token有可能为null
+	 * @return
+	 */
 	public Token getToken() {
 		if (token == null || !token.isValid()) {
 			synchronized (lockObject) {
 				token = requestToken();
-				if (null != token)
-					token.setCreateDate(new Date(System.currentTimeMillis()));
+				if (null != token) {
+					long now = System.currentTimeMillis() - 60000;//考虑Http请求的耗时预防 access_token 过期
+					token.setCreateDate(new Date(now));
+				}
 			}
 		}
 
@@ -91,7 +108,7 @@ public final class OAuth2 extends BaseService {
 		request.form(client.toPostForm());
 
 		HttpResponse response = request.send();
-		if (response.statusCode() == 200) {
+		if (response.statusCode() == HttpURLConnection.HTTP_OK) {
 			String body = response.bodyText();
 			JsonParser jsonParser = new JsonParser();
 			Token t = jsonParser.parse(body, Token.class);
@@ -101,14 +118,6 @@ public final class OAuth2 extends BaseService {
 		} else {
 			logger.error("OAuth 验证授权失败 statusCode=" + response.statusCode());
 		}
-
-		// try {
-		// String body = ApiPost(OpenApiConst.TOKEN_URL, client.toForm());
-		// Token t = JSONPARSER.parse(body, Token.class);
-		// return t;
-		// } catch (BizMailException e) {
-		// logger.error("OAuth 验证授权失败",e);
-		// }
 
 		return null;
 	}

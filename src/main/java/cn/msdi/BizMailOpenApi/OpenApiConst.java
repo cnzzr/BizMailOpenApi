@@ -65,5 +65,4 @@ public class OpenApiConst {
 
 	public static final String DISABLE_USER = "2";
 	public static final String ENABLE_USER = "1";
-		
 }
