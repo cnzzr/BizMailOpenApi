@@ -1,5 +1,6 @@
 package cn.msdi.BizMailOpenApi;
 
+import java.net.HttpURLConnection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -22,35 +23,28 @@ public class BaseService {
 	// 1002 temporarily_unavailable 暂时不可用
 	// 1200	invalid_token token值无效
 
+	final String ENCODING = "UTF-8";
 	
 	/**
-	 * 
+	 * Api接口 Post请求
 	 * @return
 	 * @throws BizMailException
 	 */
 	protected String ApiPost(String end, Map<String, Object> formData) throws BizMailException {
 		String body = null;
-		HttpRequest request = HttpRequest.post(end).formEncoding("UTF-8");
+		HttpRequest request = HttpRequest.post(end).formEncoding(ENCODING);
 		request.form(formData);
+
 		//formData.put("access_token", OAuth2.getInstance().getToken().getAccess_token());
 		String token = "Bearer" + " " + OAuth2.getInstance().getToken().getAccess_token();
 		request.header("Authorization", token, true);
-		HttpResponse response = request.send();
-		if (response.statusCode() == 200) {
-			body = response.bodyText();
-			if (body.indexOf("errcode") > 0) {
-				JsonParser jsonParser = new JsonParser();
-				BizError bizError = jsonParser.parse(body, BizError.class);
-				throw new BizMailException("BizMail接口出错", bizError);
-			}
-		} else {
-			throw new BizMailException("BizMail接口Api请求失败");
-		}
+		
+		body = httpRequest(request);
 		return body;
 	}
-
+	
 	/**
-	 * 
+	 * Api接口 Get请求
 	 * @return
 	 * @throws BizMailException
 	 */
@@ -62,17 +56,25 @@ public class BaseService {
 		queryMap.put("access_token", OAuth2.getInstance().getToken().getAccess_token());
 		
 		HttpRequest request = HttpRequest.get(end);
-		request.queryEncoding("UTF-8").query(queryMap);
+		request.queryEncoding(ENCODING).query(queryMap);
+		
+		body = httpRequest(request);
+		return body;
+	}
+
+	private String httpRequest(HttpRequest request) throws BizMailException {
+		String body = null;
+		
 		HttpResponse response = request.send();
-		if (response.statusCode() == 200) {
-			body = response.bodyText();
+		if (response.statusCode() == HttpURLConnection.HTTP_OK) {
+			body = response.charset(ENCODING).bodyText();//fix 中文乱码
 			if (body.indexOf("errcode") > 0) {
 				JsonParser jsonParser = new JsonParser();
 				BizError bizError = jsonParser.parse(body, BizError.class);
 				throw new BizMailException("BizMail接口出错", bizError);
 			}
 		} else {
-			throw new BizMailException("BizMail接口Api请求失败");
+			throw new BizMailException("BizMail接口Api请求失败 statusCode=" + response.statusCode());
 		}
 		return body;
 	}
