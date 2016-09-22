@@ -1,4 +1,4 @@
-package cn.msdi.BizMailOpenApi;
+package com.qq.exmail.openapi;
 
 /**
  * BizMail OpenApi 常量

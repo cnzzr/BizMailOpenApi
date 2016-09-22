@@ -1,4 +1,4 @@
-package cn.msdi.BizMailOpenApi.oauth;
+package com.qq.exmail.openapi.oauth;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

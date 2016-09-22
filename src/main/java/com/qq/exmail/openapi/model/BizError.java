@@ -1,4 +1,4 @@
-package cn.msdi.BizMailOpenApi.model;
+package com.qq.exmail.openapi.model;
 
 /**
  * OpenApi异常信息

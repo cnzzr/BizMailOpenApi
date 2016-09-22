@@ -1,4 +1,4 @@
-package cn.msdi.BizMailOpenApi.service;
+package com.qq.exmail.openapi.service;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -9,12 +9,13 @@ import jodd.util.StringUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import cn.msdi.BizMailOpenApi.BaseService;
-import cn.msdi.BizMailOpenApi.BizMailException;
-import cn.msdi.BizMailOpenApi.OpenApiConst;
-import cn.msdi.BizMailOpenApi.model.BizUser;
-import cn.msdi.BizMailOpenApi.oauth.OAuth2;
-import cn.msdi.BizMailOpenApi.utils.Md5Utils;
+import com.qq.exmail.openapi.BaseService;
+import com.qq.exmail.openapi.BizMailException;
+import com.qq.exmail.openapi.OpenApiConst;
+import com.qq.exmail.openapi.model.BizUser;
+import com.qq.exmail.openapi.oauth.OAuth2;
+import com.qq.exmail.openapi.utils.Md5Utils;
+
 
 /**
  * 同步成员帐号资料

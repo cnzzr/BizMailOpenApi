@@ -1,14 +1,15 @@
-package cn.msdi.BizMailOpenApi;
+package com.qq.exmail.openapi;
 
 import java.net.HttpURLConnection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.qq.exmail.openapi.model.BizError;
+import com.qq.exmail.openapi.oauth.OAuth2;
+
 import jodd.http.HttpRequest;
 import jodd.http.HttpResponse;
 import jodd.json.JsonParser;
-import cn.msdi.BizMailOpenApi.model.BizError;
-import cn.msdi.BizMailOpenApi.oauth.OAuth2;
 
 public class BaseService {
 	/*

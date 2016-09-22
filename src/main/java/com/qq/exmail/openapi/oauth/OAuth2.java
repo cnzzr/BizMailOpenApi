@@ -1,4 +1,4 @@
-package cn.msdi.BizMailOpenApi.oauth;
+package com.qq.exmail.openapi.oauth;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +18,8 @@ import oauth2.Token;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import cn.msdi.BizMailOpenApi.OpenApiConst;
+import com.qq.exmail.openapi.OpenApiConst;
+
 
 /**
  * OAuth 验证授权处理单例处理

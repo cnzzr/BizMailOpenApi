@@ -1,4 +1,4 @@
-package cn.msdi.BizMailOpenApi.utils;
+package com.qq.exmail.openapi.utils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

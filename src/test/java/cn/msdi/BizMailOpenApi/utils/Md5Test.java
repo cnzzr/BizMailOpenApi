@@ -4,6 +4,8 @@ package cn.msdi.BizMailOpenApi.utils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.qq.exmail.openapi.utils.Md5Utils;
+
 public class Md5Test {
 
 	@Test

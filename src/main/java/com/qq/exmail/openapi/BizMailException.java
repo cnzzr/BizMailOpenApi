@@ -1,9 +1,10 @@
-package cn.msdi.BizMailOpenApi;
+package com.qq.exmail.openapi;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
-import cn.msdi.BizMailOpenApi.model.BizError;
+import com.qq.exmail.openapi.model.BizError;
+
 
 public class BizMailException extends Exception {
 	/**

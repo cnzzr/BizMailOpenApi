@@ -1,7 +1,8 @@
-package cn.msdi.BizMailOpenApi.model;
+package com.qq.exmail.openapi.model;
+
+import com.qq.exmail.openapi.BaseModel;
 
 import jodd.json.meta.JSON;
-import cn.msdi.BizMailOpenApi.BaseModel;
 
 /**
  * 

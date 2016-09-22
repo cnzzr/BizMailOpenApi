@@ -1,6 +1,6 @@
-package cn.msdi.BizMailOpenApi.model;
+package com.qq.exmail.openapi.model;
 
-import cn.msdi.BizMailOpenApi.BaseModel;
+import com.qq.exmail.openapi.BaseModel;
 
 public final class BizGroup extends BaseModel{
 
