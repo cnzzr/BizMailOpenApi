@@ -18,11 +18,6 @@ public class BaseService {
 	 * BASE64 加密方式加密，即base64(client_id: client_secret)，将密文发送到请求信息中。
 	 */
 
-	// TODO 请求接口过程中由于网络或者超时原因，token票据失效或请求失败导致
-	// 建议同一数据请求失败一次后再次请求，降低错误率
-	// 1002 temporarily_unavailable 暂时不可用
-	// 1200	invalid_token token值无效
-
 	final String ENCODING = "UTF-8";
 	
 	/**
@@ -35,9 +30,8 @@ public class BaseService {
 		HttpRequest request = HttpRequest.post(end).formEncoding(ENCODING);
 		request.form(formData);
 
-		//formData.put("access_token", OAuth2.getInstance().getToken().getAccess_token());
-		String token = "Bearer" + " " + OAuth2.getInstance().getToken().getAccess_token();
-		request.header("Authorization", token, true);
+//		String token = "Bearer" + " " + OAuth2.getInstance().getToken().getAccess_token();
+//		request.header("Authorization", token, true);
 		
 		body = httpRequest(request);
 		return body;
@@ -53,7 +47,7 @@ public class BaseService {
 		if (null == queryMap) {
 			queryMap = new LinkedHashMap<String, String>(1);
 		}
-		queryMap.put("access_token", OAuth2.getInstance().getToken().getAccess_token());
+		//queryMap.put("access_token", OAuth2.getInstance().getToken().getAccess_token());
 		
 		HttpRequest request = HttpRequest.get(end);
 		request.queryEncoding(ENCODING).query(queryMap);
@@ -61,20 +55,41 @@ public class BaseService {
 		body = httpRequest(request);
 		return body;
 	}
-
+	
+	// 请求接口过程中由于网络或者超时原因，token票据失效或请求失败导致
+	//   建议同一数据请求失败一次后再次请求，降低错误率
+	// 1002 temporarily_unavailable 暂时不可用
+	// 1200	invalid_token token值无效
 	private String httpRequest(HttpRequest request) throws BizMailException {
 		String body = null;
 		
-		HttpResponse response = request.send();
-		if (response.statusCode() == HttpURLConnection.HTTP_OK) {
+		//OAuth 验证授权
+		String token = "Bearer" + " " + OAuth2.getInstance().getToken().getAccess_token();
+		request.header("Authorization", token, true);
+
+		int retry = 0;
+		while (retry < 4) {//1,2,3
+			retry++;
+			HttpResponse response = request.send();
+			if (response.statusCode() != HttpURLConnection.HTTP_OK) {
+				throw new BizMailException("BizMail接口Api请求失败 statusCode=" + response.statusCode());
+			}
 			body = response.charset(ENCODING).bodyText();//fix 中文乱码
 			if (body.indexOf("errcode") > 0) {
 				JsonParser jsonParser = new JsonParser();
 				BizError bizError = jsonParser.parse(body, BizError.class);
-				throw new BizMailException("BizMail接口出错", bizError);
+				if ("1200".equals(bizError.getErrcode())) {//重新获取 OAuth 验证授权 access_token
+					String ntoken = "Bearer " + OAuth2.getInstance().refresh().getAccess_token();
+					request.header("Authorization", ntoken, true);
+					request.timeout(8000);
+				} else if ("1002".equals(bizError.getErrcode())) {
+					request.timeout(16000);
+				} else {
+					throw new BizMailException("BizMail接口出错", bizError);
+				}
+				continue;
 			}
-		} else {
-			throw new BizMailException("BizMail接口Api请求失败 statusCode=" + response.statusCode());
+			break;//正常情况仅需尝试一次
 		}
 		return body;
 	}

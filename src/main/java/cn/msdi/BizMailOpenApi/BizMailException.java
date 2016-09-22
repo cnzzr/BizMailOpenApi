@@ -53,6 +53,14 @@ public class BizMailException extends Exception {
 
 		return message;
 	}
+	
+	/**
+	 * 获取 接口错误码
+	 * @return String
+	 */
+	public String getErrcode(){
+		return bizError !=null ? bizError.getErrcode() : "";
+	}
 
 	public String getNonNestedMessage() {
 		return super.getMessage();

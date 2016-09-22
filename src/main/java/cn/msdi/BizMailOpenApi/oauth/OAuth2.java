@@ -83,6 +83,16 @@ public final class OAuth2{
 
 		return StringUtil.isNotBlank(clientId) && StringUtil.isNotBlank(clientSecret);
 	}
+	
+	public Token refresh(){
+		if (token != null) {
+			synchronized (lockObject) {
+				token = null;
+			}
+			logger.info("企业邮接口 触发 [1200] invalid_token");
+		}
+		return getToken();
+	}
 
 	/**
 	 * 获取OAuth 验证所需 access_token
@@ -113,6 +123,7 @@ public final class OAuth2{
 			JsonParser jsonParser = new JsonParser();
 			Token t = jsonParser.parse(body, Token.class);
 			if (null != t && StringUtil.isNotBlank(t.getAccess_token())) {
+				logger.debug("access_token = " + t.getAccess_token());
 				return t;
 			}
 		} else {
