@@ -1,9 +1,9 @@
 package com.qq.exmail.openapi;
 
 /**
- * BizMail OpenApi 常量
+ * BizMail OpenApi 常量，包含 接口地址、动作类型、帐号状态
  * 
- * @author
+ * @author 张宗荣
  * 
  */
 public class OpenApiConst {
@@ -47,8 +47,12 @@ public class OpenApiConst {
 	public static final String USER_SYNC_URL = "http://openapi.exmail.qq.com:12211/openapi/user/sync";
 	public static final String USER_LIST_URL = "http://openapi.exmail.qq.com:12211/openapi/user/list";
 	public static final String USER_CHECK_URL = "http://openapi.exmail.qq.com:12211/openapi/user/check";
+	
+	public static final String USER_WXTOKEN_OPEN_URL = "http://openapi.exmail.qq.com:12211/openapi/user/openwxtoken";
+	public static final String USER_WXTOKEN_CLOSE_URL = "http://openapi.exmail.qq.com:12211/openapi/user/closewxtoken";
 
 	public static final String PARTY_LIST_URL = "http://openapi.exmail.qq.com:12211/openapi/party/list";
+	public static final String PARTY_USERLIST_URL = "http://openapi.exmail.qq.com:12211/openapi/partyuser/list";
 	public static final String PARTY_SYNC_URL = "http://openapi.exmail.qq.com:12211/openapi/party/sync";
 
 	public static final String GROUP_ADD_URL = "http://openapi.exmail.qq.com:12211/openapi/group/add";
