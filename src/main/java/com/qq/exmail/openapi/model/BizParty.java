@@ -1,8 +1,8 @@
 package com.qq.exmail.openapi.model;
 
-import com.qq.exmail.openapi.BaseModel;
-
 import jodd.json.meta.JSON;
+
+import com.qq.exmail.openapi.BaseModel;
 
 /**
  * 部门实体
@@ -22,6 +22,10 @@ public final class BizParty extends BaseModel {
 		return srcPath;
 	}
 
+	/**
+	 * 源部门（注：部门用 '/' 分隔，根部门不用加部门最多 5 级，单个部门字符不超过 64 个字符）
+	 * @param srcPath
+	 */
 	public void setSrcPath(String srcPath) {
 		this.srcPath = srcPath;
 	}
@@ -30,6 +34,10 @@ public final class BizParty extends BaseModel {
 		return dstPath;
 	}
 
+	/**
+	 * 目标部门
+	 * @param dstPath
+	 */
 	public void setDstPath(String dstPath) {
 		this.dstPath = dstPath;
 	}

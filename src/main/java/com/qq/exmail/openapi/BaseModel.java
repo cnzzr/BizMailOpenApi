@@ -9,6 +9,9 @@ import jodd.json.JsonSerializer;
 import jodd.json.meta.JSON;
 
 public abstract class BaseModel {
+	/**
+	 * 接口操作类型 1=DEL, 2=ADD, 3=MOD
+	 */
 	@JSON(name = "action", include = true)
 	String action;
 
@@ -16,11 +19,20 @@ public abstract class BaseModel {
 		return action;
 	}
 
+	/**
+	 * 动作类型（请使用OpenApiConst中常量） 1=DEL, 2=ADD, 3=MOD
+	 * @see com.qq.exmail.openapi.OpenApiConst
+	 * @param action
+	 */
 	public void setAction(String action) {
 		this.action = action;
 	}
 
 
+	/**
+	 * 对象序列化为JSON字符串
+	 * @return String
+	 */
 	public String toJson() {
 		JsonSerializer jsonSerializer = new JsonSerializer();
 		String json = jsonSerializer.serialize(this);
@@ -34,9 +46,7 @@ public abstract class BaseModel {
 	 */
 	public String serialize() {
 		final StringBuilder stringBuilder = new StringBuilder(256);
-
 		JsonContext jsonContext = new JsonSerializer().createJsonContext(null);
-
 		BeanSerializer beanSerializer = new BeanSerializer(jsonContext, this) {
 			@Override
 			protected void onSerializableProperty(String propertyName, Class propertyType, Object value) {
@@ -46,7 +56,6 @@ public abstract class BaseModel {
 				stringBuilder.append("&");
 			}
 		};
-
 		beanSerializer.serialize();
 
 		int size = stringBuilder.length();
@@ -62,15 +71,14 @@ public abstract class BaseModel {
 		final Map<String, Object> map = new LinkedHashMap<String, Object>();
 
 		JsonContext jsonContext = new JsonSerializer().createJsonContext(null);
-
 		BeanSerializer beanSerializer = new BeanSerializer(jsonContext, this) {
 			@Override
 			protected void onSerializableProperty(String propertyName, Class propertyType, Object value) {
 				map.put(propertyName, value);
 			}
 		};
-
 		beanSerializer.serialize();
+		
 		return map;
 	}
 	
