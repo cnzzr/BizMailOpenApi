@@ -7,6 +7,10 @@ package com.qq.exmail.openapi;
  * 
  */
 public class OpenApiConst {
+	/**
+	 * 接口参数配置文件
+	 */
+	protected static final String BIZMAILCONFIG_FILE = "bizmail.properties";
 
 	/**
 	 * 腾讯企业邮箱采用 OAuth2.0 协议对第三方进行授权

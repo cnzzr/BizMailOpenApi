@@ -1,23 +1,18 @@
 package com.qq.exmail.openapi.oauth;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Date;
 
 import jodd.http.HttpRequest;
 import jodd.http.HttpResponse;
-import jodd.io.FileUtil;
 import jodd.json.JsonParser;
-import jodd.props.Props;
-import jodd.util.ClassLoaderUtil;
 import jodd.util.StringUtil;
 import oauth2.Token;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.qq.exmail.openapi.BizMail;
 import com.qq.exmail.openapi.OpenApiConst;
 
 
@@ -27,7 +22,7 @@ import com.qq.exmail.openapi.OpenApiConst;
  * @author 张宗荣
  *
  */
-public final class OAuth2{
+public final class OAuth2 extends BizMail{
 	private static Logger logger = LogManager.getLogger(OAuth2.class);
 	
 	// 使用单例模式
@@ -62,21 +57,24 @@ public final class OAuth2{
 	}
 
 	private boolean init() {
-		// 读取属性文件
-		Props p = new Props();
-		try {
-			// 修改读取配置的路径的方法
-			// File f = new File("bizmail.properties");// BizMailOpenApi\bizmail.properties
-			URL url = ClassLoaderUtil.getResourceUrl("bizmail.properties");
-			File f = FileUtil.toContainerFile(url);
-			logger.debug(f.getAbsolutePath());
-			p.load(f);
-		} catch (IOException e) {
-			logger.error("企业邮接口配置文件 bizmail.properties 未找到", e);
-		}
-		String clientId = p.getValue("client_id");
-		String clientSecret = p.getValue("client_secret");
+//		// 读取属性文件
+//		Props p = new Props();
+//		try {
+//			// 修改读取配置的路径的方法
+//			// File f = new File("bizmail.properties");// BizMailOpenApi\bizmail.properties
+//			URL url = ClassLoaderUtil.getResourceUrl("bizmail.properties");
+//			File f = FileUtil.toContainerFile(url);
+//			logger.debug(f.getAbsolutePath());
+//			p.load(f);
+//		} catch (IOException e) {
+//			logger.error("企业邮接口配置文件 bizmail.properties 未找到", e);
+//		}
+//		String clientId = p.getValue("client_id");
+//		String clientSecret = p.getValue("client_secret");
 
+		String clientId = BizMail.getClientId();
+		String clientSecret = BizMail.getClientSecret();
+		
 		client = new OClient();
 		client.setGrant_type("client_credentials");
 		client.setClient_id(clientId); // AppID
@@ -133,13 +131,4 @@ public final class OAuth2{
 
 		return null;
 	}
-
-	/**
-	 * 获取OAuth认证信息的 client_id
-	 * @return
-	 */
-	public String getClientId() {
-		return this.client == null ? null : this.client.getClient_id();
-	}
-
 }

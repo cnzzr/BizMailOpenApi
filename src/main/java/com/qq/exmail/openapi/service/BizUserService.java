@@ -10,10 +10,12 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.qq.exmail.openapi.BaseService;
+import com.qq.exmail.openapi.BizMail;
 import com.qq.exmail.openapi.BizMailException;
 import com.qq.exmail.openapi.OpenApiConst;
 import com.qq.exmail.openapi.model.BizUser;
-import com.qq.exmail.openapi.oauth.OAuth2;
+import com.qq.exmail.openapi.model.jodd.Item;
+import com.qq.exmail.openapi.model.jodd.Result;
 import com.qq.exmail.openapi.utils.Md5Utils;
 
 
@@ -46,9 +48,35 @@ import com.qq.exmail.openapi.utils.Md5Utils;
  * 
  */
 public class BizUserService extends BaseService {
+	/**
+	 * 日志
+	 */
 	private static Logger logger = LogManager.getLogger(BizUserService.class);
-	
+	/**
+	 * JSON反序列化
+	 */
 	private	 JsonParser JSONPARSER = new JsonParser();
+	
+	/**
+	 * 帐号名无效
+	 */
+	final Integer AliasState_Err = -1;
+	/**
+	 * 帐号名未被占用
+	 */
+	final Integer AliasState_OK = 0;
+	/**
+	 * 主帐号
+	 */
+	final Integer AliasState_Account = 1;
+	/**
+	 * 别名
+	 */
+	final Integer AliasState_Alias = 2;
+	/**
+	 * 邮件群组帐号
+	 */
+	final Integer AliasState_Group = 3;
 	
 	/**
 	 * 获取成员资料
@@ -95,7 +123,7 @@ public class BizUserService extends BaseService {
 	public String ssologin(String alias) throws BizMailException {
 		StringBuilder ssoUrl = new StringBuilder(256);
 		ssoUrl.append(OpenApiConst.LOGIN_URL);
-		ssoUrl.append("?").append("fun=bizopenssologin&method=bizauth").append("&agent=").append(OAuth2.getInstance().getClientId()).append("&user=").append(alias).append("&ticket=");
+		ssoUrl.append("?").append("fun=bizopenssologin&method=bizauth").append("&agent=").append(BizMail.getClientId()).append("&user=").append(alias).append("&ticket=");
 		String ticket = authkey(alias);
 		if (StringUtil.isBlank(ticket)) {
 			throw new BizMailException("获取单点登录认证信息出错");
@@ -188,6 +216,7 @@ public class BizUserService extends BaseService {
 	 * @return
 	 * @throws BizMailException
 	 */
+	@Deprecated
 	public boolean deleteSafe(BizUser bizUser) throws BizMailException{
 		//1、判断用户是否有未读邮件
 		//2、如无则执行删除操作
@@ -201,6 +230,7 @@ public class BizUserService extends BaseService {
 	// queryParam.put("email", e.toString());
 	// }
 	// }
+
 	
 	/**
 	 * 检查邮件帐号是否可用
@@ -209,7 +239,7 @@ public class BizUserService extends BaseService {
 	 * @return
 	 * @throws BizMailException
 	 */
-	public boolean check(String alias) throws BizMailException {
+	public boolean isValidate(String alias) throws BizMailException {
 		Map<String, String> queryParam = new LinkedHashMap<String, String>();
 		queryParam.put("email", alias);
 		String responseTxt = ApiGet(OpenApiConst.USER_CHECK_URL, queryParam);
@@ -218,23 +248,21 @@ public class BizUserService extends BaseService {
 		// {"Count": 1,"List": [{"Email": "02166@vip2.msdi.cn","Type": 2}]}
 		// {"Count": 1,"List": [{"Email": "02166@vip2.msdi.cn","Type": 0}]}
 		// {"Count": 0,"List": []}
-		//TODO 解决复杂对象JSON解析问题
-		Map result = JSONPARSER.parse(responseTxt, Map.class);
-		if (null != result && result.get("Count").equals(1)) {
-			Map list = (Map) result.get("List");
-			if (list.get("Type").equals(0)) {
+		//解决复杂对象JSON解析问题
+		Result result = JSONPARSER.parse(responseTxt, Result.class);
+		if (null != result && result.getCount() > 0) {
+			Item list = result.getList().get(0);
+			if (AliasState_OK.equals(list.getType()))
 				return true;
-			}
 		}
 		
 		return false;			
 	}
 	
+	
+	
+	// ---------------------------------------------------------------- 私有方法
 
-	
-	
-	
-	
 	private void fixPassword(Map<String, Object> formData) {
 		Object pwdObj = formData.get("Password");
 		if (pwdObj == null || StringUtil.isBlank(pwdObj.toString())) {
