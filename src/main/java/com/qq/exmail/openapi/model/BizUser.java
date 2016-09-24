@@ -1,8 +1,9 @@
 package com.qq.exmail.openapi.model;
 
-import com.qq.exmail.openapi.BaseModel;
-
 import jodd.json.meta.JSON;
+
+import com.qq.exmail.openapi.BaseModel;
+import com.qq.exmail.openapi.model.jodd.Result;
 
 /**
  * 
@@ -39,10 +40,6 @@ public final class BizUser extends BaseModel{
 	@JSON(name = "ExtId")
 	private String extId;
 	
-	//TODO 替换为对象，所属部门
-	// 1、传部门路径，用’/’分隔
-	// 2、根部门不需要传。如果空，则为根部门。部门是
-	// 已存在的3、如果是多个部门，传多个PartyPath
 	@JSON(name = "PartyPath")
 	private String partyPath;
 	
@@ -52,6 +49,9 @@ public final class BizUser extends BaseModel{
 	//用于员工密码的属性
 	@JSON(name = "Password")
 	private String password;
+	
+	@JSON(name = "PartyList")
+	private Result PartyList;
 	
 	public String getPassword() {
 		return password;
@@ -111,6 +111,14 @@ public final class BizUser extends BaseModel{
 	public String getPartyPath() {
 		return partyPath;
 	}
+	
+	//TODO 替换为对象，所属部门
+	/*
+	 * 设置所属部门
+	 * 1、传部门路径，用’/’分隔
+	 * 2、根部门不需要传。如果空，则为根部门。部门要求是已存在的
+	 * 3、如果是多个部门，传多个PartyPath
+	 */
 	public void setPartyPath(String partyPath) {
 		this.partyPath = partyPath;
 	}
@@ -119,6 +127,13 @@ public final class BizUser extends BaseModel{
 	}
 	public void setOpenType(String openType) {
 		this.openType = openType;
+	}
+	
+	public Result getPartyList() {
+		return PartyList;
+	}
+	public void setPartyList(Result partyList) {
+		PartyList = partyList;
 	}
 	
 	
