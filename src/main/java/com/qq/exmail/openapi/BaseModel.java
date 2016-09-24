@@ -1,6 +1,7 @@
 package com.qq.exmail.openapi;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import jodd.json.BeanSerializer;
@@ -40,7 +41,7 @@ public abstract class BaseModel {
 	}
 
 	/**
-	 * 序列化Model为支持Post提交的字符串
+	 * 序列化Model为支持Get提交的字符串
 	 * 
 	 * @return String
 	 */
@@ -50,10 +51,16 @@ public abstract class BaseModel {
 		BeanSerializer beanSerializer = new BeanSerializer(jsonContext, this) {
 			@Override
 			protected void onSerializableProperty(String propertyName, Class propertyType, Object value) {
-				stringBuilder.append(propertyName);
-				stringBuilder.append("=");
-				stringBuilder.append(value);
-				stringBuilder.append("&");
+				if (null == value) {
+					return;
+				} else if (value instanceof List) {
+					List l = (List<Object>) value;
+					for (Object obj : l) {
+						stringBuilder.append(propertyName).append("=").append(obj).append("&");
+					}
+				} else {
+					stringBuilder.append(propertyName).append("=").append(value).append("&");
+				}
 			}
 		};
 		beanSerializer.serialize();
@@ -69,12 +76,24 @@ public abstract class BaseModel {
 	 */
 	public Map<String, Object> toPostForm() {
 		final Map<String, Object> map = new LinkedHashMap<String, Object>();
+//		final Map<String, Object> map = new IdentityHashMap<String, Object>();
 
 		JsonContext jsonContext = new JsonSerializer().createJsonContext(null);
 		BeanSerializer beanSerializer = new BeanSerializer(jsonContext, this) {
 			@Override
 			protected void onSerializableProperty(String propertyName, Class propertyType, Object value) {
-				map.put(propertyName, value);
+				if (null == value) {
+					return;
+				} else if (value instanceof List) {
+					//TODO 暂时跳过，对于对象中存在重复属性的接口使用Get提交数据
+//					List l = (List<Object>) value;
+//					for (Object obj : l) {
+//						//map.put(propertyName, obj);
+//						map.put(new String(propertyName), obj);//使用 IdentityHashMap 后可以添加重复Key，但是无法获取到
+//					}
+				} else {
+					map.put(propertyName, value);
+				}
 			}
 		};
 		beanSerializer.serialize();

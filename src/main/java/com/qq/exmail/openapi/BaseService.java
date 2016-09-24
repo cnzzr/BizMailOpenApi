@@ -4,12 +4,12 @@ import java.net.HttpURLConnection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.qq.exmail.openapi.model.BizError;
-import com.qq.exmail.openapi.oauth.OAuth2;
-
 import jodd.http.HttpRequest;
 import jodd.http.HttpResponse;
 import jodd.json.JsonParser;
+
+import com.qq.exmail.openapi.model.BizError;
+import com.qq.exmail.openapi.oauth.OAuth2;
 
 public class BaseService {
 	/*
@@ -23,6 +23,7 @@ public class BaseService {
 	
 	/**
 	 * Api接口 Post请求
+	 * @param Map
 	 * @return
 	 * @throws BizMailException
 	 */
@@ -40,6 +41,7 @@ public class BaseService {
 	
 	/**
 	 * Api接口 Get请求
+	 * @param Map
 	 * @return
 	 * @throws BizMailException
 	 */
@@ -54,6 +56,20 @@ public class BaseService {
 		request.queryEncoding(ENCODING).query(queryMap);
 		
 		body = httpRequest(request);
+		return body;
+	}
+	
+	/**
+	 * Api接口 Get请求
+	 * @param String
+	 * @return
+	 * @throws BizMailException
+	 */
+	protected String ApiGet(String end, String queryString) throws BizMailException {
+		HttpRequest request = HttpRequest.get(end);
+		request.queryEncoding(ENCODING).queryString(queryString);
+		
+		String body = httpRequest(request);
 		return body;
 	}
 	
