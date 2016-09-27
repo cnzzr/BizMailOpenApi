@@ -7,6 +7,7 @@ import java.net.URL;
 import jodd.io.FileUtil;
 import jodd.props.Props;
 import jodd.util.ClassLoaderUtil;
+import jodd.util.StringUtil;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -48,10 +49,14 @@ public class BizMail {
 		return clientSecret == null ? null : clientSecret;
 	}
 	
+	public static String getAlias(String account){
+		return String.format("%1$s@%2$s", account, getDomain());
+	}
+	
 	static {
 		URL url = ClassLoaderUtil.getResourceUrl(OpenApiConst.BIZMAILCONFIG_FILE);// NULL
 		if (null == url) {
-			System.out.println("企业邮接口配置文件 bizmail.properties 未找到");
+			System.err.println("企业邮接口配置文件 bizmail.properties 未找到");
 			logger.error("企业邮接口配置文件 bizmail.properties 未找到");
 		}
 		// 读取属性文件
@@ -68,5 +73,9 @@ public class BizMail {
 		domain = p.getValue("domain");
 		clientId = p.getValue("client_id");
 		clientSecret = p.getValue("client_secret");
+
+		if (StringUtil.isBlank(clientId) || StringUtil.isBlank(clientSecret) || StringUtil.isBlank(domain)) {
+			System.err.println("企业邮接口配置文件 bizmail.properties 参数[client_id,client_secret,domain]未配置");
+		}
 	}
 }

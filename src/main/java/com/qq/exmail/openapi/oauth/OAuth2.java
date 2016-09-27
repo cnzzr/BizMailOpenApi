@@ -44,7 +44,7 @@ public final class OAuth2 extends BizMail{
 					service = new OAuth2();
 					boolean r = service.init();
 					if (!r) {
-						logger.error("企业邮接口配置文件 bizmail.properties 参数未配置");
+						logger.error("企业邮接口配置文件 bizmail.properties 参数[client_id,client_secret]未配置");
 					}
 				}
 			}
