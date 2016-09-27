@@ -121,9 +121,26 @@ public class BizUserService extends BaseService {
 	 * @throws BizMailException
 	 */
 	public String ssologin(String alias) throws BizMailException {
+		return ssologin(alias, null);
+	}
+	
+	/**
+	 * 用户一键登录地址，指定自定义域名（不建议）
+	 * @param alias
+	 * @param domainUrl
+	 * @return
+	 * @throws BizMailException
+	 */
+	public String ssologin(String alias,String domailUrl) throws BizMailException {
 		StringBuilder ssoUrl = new StringBuilder(256);
-		ssoUrl.append(OpenApiConst.LOGIN_URL);
-		ssoUrl.append("?").append("fun=bizopenssologin&method=bizauth").append("&agent=").append(BizMail.getClientId()).append("&user=").append(alias).append("&ticket=");
+		if (StringUtil.isBlank(domailUrl)) {
+			ssoUrl.append(OpenApiConst.LOGIN_URL);
+		} else if (!domailUrl.startsWith("http://") && domailUrl.startsWith("https://")) {
+			ssoUrl.append("http://").append(domailUrl);
+		} else {
+			ssoUrl.append(domailUrl);
+		}
+		ssoUrl.append("?").append("fun=bizopenssologin").append("&method=bizauth").append("&agent=").append(BizMail.getClientId()).append("&user=").append(alias).append("&ticket=");
 		String ticket = authkey(alias);
 		if (StringUtil.isBlank(ticket)) {
 			throw new BizMailException("获取单点登录认证信息出错");
@@ -131,6 +148,7 @@ public class BizUserService extends BaseService {
 		ssoUrl.append(ticket);
 		return ssoUrl.toString();
 	}
+	
 	
 	/**
 	 * 返回帐号未读邮件数，当帐号不存在时将返回 -1
