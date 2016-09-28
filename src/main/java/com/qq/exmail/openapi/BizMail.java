@@ -38,15 +38,16 @@ public class BizMail {
 	 * @return String
 	 */
 	public static String getClientId() {
-		return clientId == null ? null : clientId;
+		return clientId != null ? clientId : null;
 	}
 
 	/**
 	 * 获取接口Api Key
+	 * 
 	 * @return String
 	 */
 	protected static String getClientSecret() {
-		return clientSecret == null ? null : clientSecret;
+		return clientSecret != null ? clientSecret : null;
 	}
 	
 	public static String getAlias(String account){

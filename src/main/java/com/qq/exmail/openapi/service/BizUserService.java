@@ -110,7 +110,7 @@ public class BizUserService extends BaseService {
 		logger.debug(responseTxt);
 		JsonParser jsonParser = new JsonParser();
 		Map map = jsonParser.parse(responseTxt, Map.class);
-		String authkey = map ==null || null == map.get(RESP_JSON_AUTHKEY) ? null : map.get(RESP_JSON_AUTHKEY).toString();
+		String authkey = map != null && null != map.get(RESP_JSON_AUTHKEY) ? map.get(RESP_JSON_AUTHKEY).toString() : null;
 		return authkey;
 	}
 	
@@ -166,7 +166,7 @@ public class BizUserService extends BaseService {
 			// 返回示例 {"Alias":"zzr@vip2.msdi.cn","NewCount":"2"}
 			JsonParser jsonParser = new JsonParser();
 			Map map = jsonParser.parse(responseTxt, Map.class);
-			if (map == null || null == map.get(RESP_JSON_NEWCOUNT)) {
+			if (map != null && null != map.get(RESP_JSON_NEWCOUNT)) {
 				String newcount = map.get(RESP_JSON_NEWCOUNT).toString();
 				count = Integer.parseInt(newcount);
 			}
@@ -281,6 +281,10 @@ public class BizUserService extends BaseService {
 	
 	// ---------------------------------------------------------------- 私有方法
 
+	/**
+	 * 将明文密码处理为MD5
+	 * @param formData
+	 */
 	private void fixPassword(Map<String, Object> formData) {
 		Object pwdObj = formData.get("Password");
 		if (pwdObj == null || StringUtil.isBlank(pwdObj.toString())) {

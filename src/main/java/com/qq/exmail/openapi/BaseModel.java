@@ -54,6 +54,7 @@ public abstract class BaseModel {
 				if (null == value) {
 					return;
 				} else if (value instanceof List) {
+					@SuppressWarnings("unchecked")
 					List l = (List<Object>) value;
 					for (Object obj : l) {
 						stringBuilder.append(propertyName).append("=").append(obj).append("&");
