@@ -1,6 +1,8 @@
 package com.qq.exmail.openapi.service;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import jodd.json.JsonParser;
@@ -195,7 +197,7 @@ public class BizUserService extends BaseService {
 		bizUser.setOpenType(OpenApiConst.ENABLE_USER);
 		Map<String, Object> formData = bizUser.toPostForm();
 		// 处理密码为MD5
-		fixPassword(formData);
+		boolean r = fixPassword(formData);
 		String responseTxt = ApiPost(OpenApiConst.USER_SYNC_URL, formData);//添加成功无返回
 		logger.debug(responseTxt);
 		return true;
@@ -207,7 +209,8 @@ public class BizUserService extends BaseService {
 		bizUser.setOpenType(OpenApiConst.ENABLE_USER);
 		Map<String, Object> formData = bizUser.toPostForm();
 		// 处理密码为MD5
-		fixPassword(formData);
+		boolean r = fixPassword(formData);
+		logger.debug("修改成员帐号：" + bizUser.serialize());
 		String responseTxt = ApiPost(OpenApiConst.USER_SYNC_URL, formData);//修改操作无返回
 		logger.debug(responseTxt);
 		return true;
@@ -277,19 +280,63 @@ public class BizUserService extends BaseService {
 		return false;			
 	}
 	
+	/**
+	 * 获取系统只所有帐号的清单
+	 * 	应用于人员信息同步或数据初始化
+	 * @return List
+	 * @throws BizMailException
+	 */
+	public List<String> queryAllUsers() throws BizMailException{
+		return userlist(0, null);
+	}
+	
+	/**
+	 * 获取系统指定Ver后的变更用户List
+	 * @param ver
+	 * @param actionType
+	 * @return
+	 * @throws BizMailException
+	 */
+	public List<String> userlist(Integer ver,Integer actionType) throws BizMailException {
+		Map<String, String> queryParam = new LinkedHashMap<String, String>();
+		queryParam.put("Ver", ver.toString());
+		String responseTxt = ApiGet(OpenApiConst.USER_LIST_URL, queryParam);
+		//logger.debug(responseTxt);//内容可能过长，不记录日志
+		// 返回示例： 
+		// {"Ver": 1474444854395,"Count": 1,"List": [{"Alias": "02166@vip2.msdi.cn","Action": 2}]}
+		// {"Ver": 1474444854300,"Count": 0,"List": []}
+		List<String> users = new ArrayList<String>(128);
+		Result result = JSONPARSER.parse(responseTxt, Result.class);
+		if (null != result && result.getCount() > 0) {
+			if (null == actionType) {
+				for (Item item : result.getList()) {
+					users.add(item.getAlias());
+				}
+			} else {
+				for (Item item : result.getList()) {
+					if (actionType.equals(item.getAction()))
+						users.add(item.getAlias());
+				}
+			}
+		}
+		return users;
+	}
 	
 	
 	// ---------------------------------------------------------------- 私有方法
 
 	/**
-	 * 将明文密码处理为MD5
+	 * 处理用户对象中的密码属性
+	 * 明文密码处理为MD5
+	 * 
 	 * @param formData
+	 * @return true带有密码，false 无密码
 	 */
-	private void fixPassword(Map<String, Object> formData) {
+	private boolean fixPassword(Map<String, Object> formData) {
 		Object pwdObj = formData.get("Password");
 		if (pwdObj == null || StringUtil.isBlank(pwdObj.toString())) {
 			formData.remove("Password");
-			return;
+			return false;
 		}
 		String pwd = pwdObj.toString();
 		if (pwd.length() < 6) {
@@ -299,5 +346,6 @@ public class BizUserService extends BaseService {
 		String md5Pwd = Md5Utils.md5(pwdObj.toString());
 		formData.put("Md5", "1");
 		formData.put("Password", md5Pwd);
+		return true;
 	}
 }

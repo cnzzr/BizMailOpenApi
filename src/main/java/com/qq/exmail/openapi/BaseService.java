@@ -8,6 +8,9 @@ import jodd.http.HttpRequest;
 import jodd.http.HttpResponse;
 import jodd.json.JsonParser;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import com.qq.exmail.openapi.model.BizError;
 import com.qq.exmail.openapi.oauth.OAuth2;
 
@@ -18,6 +21,11 @@ public class BaseService {
 	 * GET 或者其他方式： 在HTTP HEAD 加上Authorization，将client_id 和client_secret 以
 	 * BASE64 加密方式加密，即base64(client_id: client_secret)，将密文发送到请求信息中。
 	 */
+	
+	/**
+	 * 日志
+	 */
+	private static Logger logger = LogManager.getLogger(BaseService.class);
 
 	final String ENCODING = "UTF-8";
 	
@@ -96,11 +104,13 @@ public class BaseService {
 				JsonParser jsonParser = new JsonParser();
 				BizError bizError = jsonParser.parse(body, BizError.class);
 				if ("1200".equals(bizError.getErrcode())) {//重新获取 OAuth 验证授权 access_token
+					//token过期 重试
 					String ntoken = "Bearer " + OAuth2.getInstance().refresh().getAccess_token();
 					request.header("Authorization", ntoken, true);
 					request.timeout(8000);
 				} else if ("1002".equals(bizError.getErrcode())) {
 					request.timeout(16000);
+					logger.error("企业邮接口出错 [1002] temporarily_unavailable");
 				} else {
 					throw new BizMailException("BizMail接口出错", bizError);
 				}
