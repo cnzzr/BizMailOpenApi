@@ -87,11 +87,11 @@ public abstract class BaseModel {
 					return;
 				} else if (value instanceof List) {
 					//TODO 暂时跳过，对于对象中存在重复属性的接口使用Get提交数据
-//					List l = (List<Object>) value;
-//					for (Object obj : l) {
-//						//map.put(propertyName, obj);
-//						map.put(new String(propertyName), obj);//使用 IdentityHashMap 后可以添加重复Key，但是无法获取到
-//					}
+					List l = (List<Object>) value;
+					for (Object obj : l) {
+						//map.put(propertyName, obj);
+						map.put(new String(propertyName), obj);//使用 IdentityHashMap 后可以添加重复Key，但是无法获取到
+					}
 				} else {
 					map.put(propertyName, value);
 				}
