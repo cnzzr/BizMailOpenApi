@@ -11,7 +11,7 @@ public class Token {
 	private String access_token;
 	private String refresh_token;
 	private Date createDate;
-	private Long expires_in;
+	private Long expires_in;//单位为 秒
 	private String token_type;
 
 	public String getAccess_token() {
@@ -58,7 +58,7 @@ public class Token {
 		Date now = new Date();
 		Long nowTimeStamp = now.getTime();
 		Long createTimeStmap = createDate.getTime();
-		return nowTimeStamp - createTimeStmap < expires_in;
+		return nowTimeStamp - createTimeStmap < (expires_in * 1000 );
 	}
 
 }
