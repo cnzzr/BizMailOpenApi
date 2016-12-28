@@ -1,5 +1,6 @@
 package oauth2;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -7,7 +8,8 @@ import java.util.Date;
  * 
  * @description OAuth2 Token
  */
-public class Token {
+public class Token implements Serializable{
+
 	private String access_token;
 	private String refresh_token;
 	private Date createDate;
