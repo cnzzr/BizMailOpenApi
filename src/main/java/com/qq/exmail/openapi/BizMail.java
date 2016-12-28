@@ -23,6 +23,7 @@ public class BizMail {
 	private static String domain;
 	private static String clientId;
 	private static String clientSecret;
+	private static String tokenShareClass;
 	
 	/**
 	 * 获取邮箱域名
@@ -54,6 +55,14 @@ public class BizMail {
 		return String.format("%1$s@%2$s", account, getDomain());
 	}
 	
+	public static String getTokenShareClass() {
+		return tokenShareClass;
+	}
+
+	public static void setTokenShareClass(String tokenShareClass) {
+		BizMail.tokenShareClass = tokenShareClass;
+	}
+
 	static {
 		URL url = ClassLoaderUtil.getResourceUrl(OpenApiConst.BIZMAILCONFIG_FILE);// NULL
 		if (null == url) {
@@ -74,6 +83,7 @@ public class BizMail {
 		domain = p.getValue("domain");
 		clientId = p.getValue("client_id");
 		clientSecret = p.getValue("client_secret");
+		tokenShareClass = p.getValue("tokenshare");
 
 		if (StringUtil.isBlank(clientId) || StringUtil.isBlank(clientSecret) || StringUtil.isBlank(domain)) {
 			System.err.println("企业邮接口配置文件 bizmail.properties 参数[client_id,client_secret,domain]未配置");

@@ -8,6 +8,7 @@ import jodd.http.HttpResponse;
 import jodd.json.JsonParser;
 import jodd.util.StringUtil;
 import oauth2.Token;
+import oauth2.TokenShare;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -31,6 +32,7 @@ public final class OAuth2 extends BizMail{
 
 	private OClient client = null;
 	private Token token = null;
+	private TokenShare tshare = null;
 
 	/**
 	 * 单例 得到类的实例
@@ -57,7 +59,6 @@ public final class OAuth2 extends BizMail{
 	}
 
 	private boolean init() {
-//		// 读取属性文件
 //		Props p = new Props();
 //		try {
 //			// 修改读取配置的路径的方法
@@ -72,6 +73,7 @@ public final class OAuth2 extends BizMail{
 //		String clientId = p.getValue("client_id");
 //		String clientSecret = p.getValue("client_secret");
 
+		// 通过配置文件获取属性
 		String clientId = BizMail.getClientId();
 		String clientSecret = BizMail.getClientSecret();
 		
@@ -79,16 +81,35 @@ public final class OAuth2 extends BizMail{
 		client.setGrant_type("client_credentials");
 		client.setClient_id(clientId); // AppID
 		client.setClient_secret(clientSecret); // Secret
+		
+		String tokenShare = BizMail.getTokenShareClass();
+		if (StringUtil.isNotBlank(tokenShare)) {
+			try {
+				tshare = (TokenShare) Class.forName(tokenShare).newInstance();
+			} catch (ClassNotFoundException cne) {
+				//配置有误
+			} catch(Exception exc){
+				
+			}
+		}
 
 		return StringUtil.isNotBlank(clientId) && StringUtil.isNotBlank(clientSecret);
 	}
 	
+	/**
+	 * 强制刷新token
+	 * @return Token
+	 */
 	public Token refresh(){
 		if (token != null) {
 			synchronized (lockObject) {
 				token = null;
 			}
 			logger.info("企业邮接口 触发 [1200] invalid_token");
+			
+			if(null!=tshare){
+				tshare.remove();
+			}
 		}
 		return getToken();
 	}
@@ -100,12 +121,25 @@ public final class OAuth2 extends BizMail{
 	 */
 	public Token getToken() {
 		if (token == null || !token.isValid()) {
+			if (null != tshare) {
+				Token tokenFromShare = tshare.get();
+				if (tokenFromShare != null && tokenFromShare.isValid()) {
+					synchronized (lockObject) {
+						token = tokenFromShare;
+						return token;
+					}
+				}
+			}
+
 			synchronized (lockObject) {
 				token = requestToken();
 				if (null != token) {
-					long now = System.currentTimeMillis() - 60000;//考虑Http请求的耗时预防 access_token 过期
+					long now = System.currentTimeMillis() - 60000;// 考虑Http请求的耗时预防 access_token 过期
 					token.setCreateDate(new Date(now));
 				}
+			}
+			if (null != tshare && null != token) {
+				tshare.put(token);
 			}
 		}
 
