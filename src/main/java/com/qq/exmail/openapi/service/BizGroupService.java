@@ -19,6 +19,7 @@ public class BizGroupService extends BaseService {
 
 	/**
 	 * 3.3.9 添加邮件群组
+	 *
 	 * @param bizGroup
 	 * @return 成功true，失败抛出异常
 	 * @throws BizMailException

@@ -101,6 +101,7 @@ public class BizUserService extends BaseService {
 	
 	/**
 	 * 获取Authkey
+	 *
 	 * @param alias
 	 * @return String
 	 * @throws BizMailException
@@ -128,6 +129,7 @@ public class BizUserService extends BaseService {
 	
 	/**
 	 * 用户一键登录地址，指定自定义域名（不建议）
+	 *
 	 * @param alias
 	 * @param domainUrl
 	 * @return
@@ -154,6 +156,7 @@ public class BizUserService extends BaseService {
 	
 	/**
 	 * 返回帐号未读邮件数，当帐号不存在时将返回 -1
+	 *
 	 * @param alias
 	 * @return Integer
 	 * @throws BizMailException
@@ -184,6 +187,7 @@ public class BizUserService extends BaseService {
 
 	/**
 	 * 新增员工邮箱
+	 *
 	 * @param bizUser
 	 * @return
 	 * @throws BizMailException
@@ -219,6 +223,7 @@ public class BizUserService extends BaseService {
 	/**
 	 * 删除用户帐号
 	 * <b>直接删除，无法恢复</b>
+	 *
 	 * @param bizUser
 	 * @return
 	 * @throws BizMailException
@@ -233,6 +238,7 @@ public class BizUserService extends BaseService {
 	
 	/**
 	 * 安全删除用户的方法，如果用户有未读邮件则不执行删除
+	 *
 	 * @param bizUser
 	 * @return
 	 * @throws BizMailException
@@ -256,6 +262,7 @@ public class BizUserService extends BaseService {
 	/**
 	 * 检查邮件帐号是否可用
 	 * 邮件帐号(如果多个需要检查的邮件帐号，传多个email，email 上限为20 个)
+	 *
 	 * @param alias
 	 * @return
 	 * @throws BizMailException
@@ -283,6 +290,7 @@ public class BizUserService extends BaseService {
 	/**
 	 * 获取系统只所有帐号的清单
 	 * 	应用于人员信息同步或数据初始化
+	 *
 	 * @return List
 	 * @throws BizMailException
 	 */
@@ -292,6 +300,7 @@ public class BizUserService extends BaseService {
 	
 	/**
 	 * 获取系统指定Ver后的变更用户List
+	 *
 	 * @param ver
 	 * @param actionType
 	 * @return

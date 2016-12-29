@@ -22,6 +22,7 @@ public abstract class BaseModel {
 
 	/**
 	 * 动作类型（请使用OpenApiConst中常量） 1=DEL, 2=ADD, 3=MOD
+	 *
 	 * @see com.qq.exmail.openapi.OpenApiConst
 	 * @param action
 	 */
@@ -32,6 +33,7 @@ public abstract class BaseModel {
 
 	/**
 	 * 对象序列化为JSON字符串
+	 *
 	 * @return String
 	 */
 	public String toJson() {

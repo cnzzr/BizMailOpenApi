@@ -33,6 +33,7 @@ public class BizPartyService extends BaseService {
 	/**
 	 * 3.3.6 获取子部门列表
 	 * 1、参数为空则返回根节点下部门清单
+	 *
 	 * @param dstPath
 	 * @return 部门不存在返回null 否则 List
 	 * @throws BizMailException
@@ -70,6 +71,7 @@ public class BizPartyService extends BaseService {
 	
 	/**
 	 * 3.3.7 获取部门下成员列表
+	 *
 	 * @param partyPath 部门路径。如果查看根部门，置为空。
 	 * @return 部门不存在返回null 否则 List
 	 * @throws BizMailException
@@ -106,6 +108,7 @@ public class BizPartyService extends BaseService {
 	 * 增加部门，注意事项：
 	 * 1、同一部门重复添加亦返回 true
 	 * 2、部门dstpath属性的规则为 一级部门/二级部门/三级部门，接口自动创建父节点
+	 *
 	 * @see com.qq.exmail.openapi.model.BizParty
 	 * @param party
 	 * @return true成功
@@ -126,6 +129,7 @@ public class BizPartyService extends BaseService {
 	/**
 	 * 修改部门，可实现签名、移动位置，注意事项：
 	 * 1、部门父节点变更后，人员自动移动
+	 *
 	 * @see com.qq.exmail.openapi.model.BizParty
 	 * @param party
 	 * @return
@@ -147,6 +151,7 @@ public class BizPartyService extends BaseService {
 	 * 删除部门，注意事项：
 	 * 1、部门下有成员时无法删除；
 	 * 2、仅删除最后一级部门，如 传递A/B/C时 删除 C
+	 *
 	 * @see com.qq.exmail.openapi.model.BizParty
 	 * @param party
 	 * @return

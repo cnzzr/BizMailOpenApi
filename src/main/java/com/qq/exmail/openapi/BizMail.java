@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 
 /**
  * 接口配置
+ *
  * @author 张宗荣
  *
  */
@@ -27,6 +28,7 @@ public class BizMail {
 	
 	/**
 	 * 获取邮箱域名
+	 *
 	 * @return String
 	 */
 	public static String getDomain() {

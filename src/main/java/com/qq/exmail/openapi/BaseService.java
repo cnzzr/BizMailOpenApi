@@ -27,11 +27,12 @@ public class BaseService {
 	 */
 	private static Logger logger = LogManager.getLogger(BaseService.class);
 
-	final String ENCODING = "UTF-8";
+	public final String ENCODING = "UTF-8";
 	
 	/**
 	 * Api接口 Post请求
-	 * @param Map
+	 * @param end 请求接口地址
+	 * @param formData Map类型请求参数
 	 * @return
 	 * @throws BizMailException
 	 */
@@ -49,7 +50,8 @@ public class BaseService {
 	
 	/**
 	 * Api接口 Get请求
-	 * @param Map
+	 * @param end 请求接口地址
+	 * @param queryMap Map类型请求参数
 	 * @return
 	 * @throws BizMailException
 	 */
@@ -69,7 +71,8 @@ public class BaseService {
 	
 	/**
 	 * Api接口 Get请求
-	 * @param String
+	 * @param end 请求接口地址
+	 * @param queryString Get请求参数
 	 * @return
 	 * @throws BizMailException
 	 */

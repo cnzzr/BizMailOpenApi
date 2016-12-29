@@ -1,8 +1,10 @@
 package oauth2;
 
 /**
- * 处理 群集环境中多个应用共享问题
- * @author 02166
+ * 用于解决应用部署于群集环境中多个应用服务器之间Token共享的问题
+ *   因为BizMail仅能维护一个有效的 access_token
+ *
+ * @author 张宗荣
  *
  */
 public interface TokenShare {

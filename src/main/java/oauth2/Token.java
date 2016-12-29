@@ -4,8 +4,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
+ * OAuth2 token类
+ *
  * @author 张宗荣
- * 
  * @description OAuth2 Token
  */
 public class Token implements Serializable{
@@ -56,6 +57,11 @@ public class Token implements Serializable{
 		this.expires_in = expires_in;
 	}
 
+	/**
+	 * 判断Token是否过期
+	 *
+	 * @return true 有效，false 无效
+     */
 	public boolean isValid() {
 		Date now = new Date();
 		Long nowTimeStamp = now.getTime();
