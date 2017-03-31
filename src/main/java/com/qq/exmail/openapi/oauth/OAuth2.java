@@ -19,13 +19,13 @@ import com.qq.exmail.openapi.OpenApiConst;
 
 /**
  * OAuth 验证授权处理单例处理
- * 
+ *
  * @author 张宗荣
  *
  */
 public final class OAuth2 extends BizMail{
 	private static Logger logger = LogManager.getLogger(OAuth2.class);
-	
+
 	// 使用单例模式
 	private static OAuth2 service = null;
 	private static Object lockObject = new Object();
@@ -36,7 +36,7 @@ public final class OAuth2 extends BizMail{
 
 	/**
 	 * 单例 得到类的实例
-	 * 
+	 *
 	 * @return 返回当前类的实例
 	 */
 	public static OAuth2 getInstance() {
@@ -76,12 +76,12 @@ public final class OAuth2 extends BizMail{
 		// 通过配置文件获取属性
 		String clientId = BizMail.getClientId();
 		String clientSecret = BizMail.getClientSecret();
-		
+
 		client = new OClient();
 		client.setGrant_type("client_credentials");
 		client.setClient_id(clientId); // AppID
 		client.setClient_secret(clientSecret); // Secret
-		
+
 		String tokenShare = BizMail.getTokenShareClass();
 		if (StringUtil.isNotBlank(tokenShare)) {
 			try {
@@ -89,29 +89,30 @@ public final class OAuth2 extends BizMail{
 			} catch (ClassNotFoundException cne) {
 				//配置有误
 			} catch(Exception exc){
-				
+
 			}
 		}
 
 		return StringUtil.isNotBlank(clientId) && StringUtil.isNotBlank(clientSecret);
 	}
-	
+
 	/**
 	 * 强制刷新token
 	 * @return Token
 	 */
 	public Token refresh(){
-		if (token != null) {
-			synchronized (lockObject) {
-				token = null;
-			}
-			logger.info("企业邮接口 触发 [1200] invalid_token");
-			
-			if(null!=tshare){
-				tshare.remove();
-			}
-		}
-		return getToken();
+//		if (token != null) {
+//			synchronized (lockObject) {
+//				token = null;
+//			}
+//			logger.info("企业邮接口 触发 [1200] invalid_token");
+//
+//			if(null!=tshare){
+//				tshare.remove();
+//			}
+//		}
+		logger.info("企业邮接口 触发 [1200] invalid_token");
+		return getToken(true);
 	}
 
 	/**
@@ -119,32 +120,42 @@ public final class OAuth2 extends BizMail{
 	 * TODO Token有可能为null
 	 * @return
 	 */
-	public Token getToken() {
-		if (token == null || !token.isValid()) {
-			if (null != tshare) {
-				Token tokenFromShare = tshare.get();
-				if (tokenFromShare != null && tokenFromShare.isValid()) {
-					synchronized (lockObject) {
-						token = tokenFromShare;
-						return token;
-					}
-				}
-			}
-
-			synchronized (lockObject) {
-				token = requestToken();
-				if (null != token) {
-					long now = System.currentTimeMillis() - 60000;// 考虑Http请求的耗时预防 access_token 过期
-					token.setCreateDate(new Date(now));
-				}
-			}
-			if (null != tshare && null != token) {
-				tshare.put(token);
-			}
-		}
-
-		return token;
+	public Token getToken(){
+		return getToken(false);
 	}
+
+	public Token getToken(boolean refresh) {
+        // 1、应用首次启动从 TokenShare中加载，null或无效则重新请求；2、Refresh时直接请求Token
+        if (null != tshare) {
+            if (!refresh) {
+                Token tokenFromShare = tshare.get();
+                if (tokenFromShare != null && tokenFromShare.isValid()
+                        && (token == null || !token.getAccess_token().equals(tokenFromShare.getAccess_token())) // 确保共享Token为新值
+                        ) {
+                    synchronized (lockObject) {
+                        token = tokenFromShare;
+                        return token;
+                    }
+                }
+            }
+        }
+
+        if (refresh || token == null || !token.isValid()) {
+            synchronized (lockObject) {
+                Token tokenRefresh = requestToken();
+                if (null != tokenRefresh) {
+                    long now = System.currentTimeMillis() - 60000;// 考虑Http请求的耗时预防 access_token 过期
+                    tokenRefresh.setCreateDate(new Date(now));
+                    token = tokenRefresh;
+                }
+            }
+            if (null != tshare && null != token) {
+                tshare.put(token);
+            }
+        }
+
+        return token;
+    }
 
 	private Token requestToken() {
 		HttpRequest request = HttpRequest.post(OpenApiConst.TOKEN_URL);
