@@ -3,6 +3,8 @@ package com.qq.exmail.openapi.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.qq.exmail.openapi.BizMail;
+import com.qq.exmail.openapi.utils.Md5Utils;
 import jodd.json.meta.JSON;
 
 import com.qq.exmail.openapi.BaseModel;
@@ -54,6 +56,9 @@ public final class BizUser extends BaseModel{
 	@JSON(name = "Password")
 	private String password;
 
+	@JSON(name = "Md5")
+	private String md5;
+
 	//---------------- 以下属于用于 获取成员资料后执行序列化
 	@JSON(name = "PartyList")
 	private Result PartyList;
@@ -67,9 +72,19 @@ public final class BizUser extends BaseModel{
 		return password;
 	}
 	public void setPassword(String password) {
-		this.password = password;
+//		this.password = password;
+		String md5Pwd = Md5Utils.md5(password);
+		setMd5("1");
+		this.password = md5Pwd;
 	}
-	
+
+	public String getMd5() {
+		return md5;
+	}
+
+	public void setMd5(String md5) {
+		this.md5 = md5;
+	}
 	public String getAlias() {
 		return alias;
 	}
@@ -107,9 +122,19 @@ public final class BizUser extends BaseModel{
 	public void setMobile(String mobile) {
 		this.mobile = mobile;
 	}
+
+	/**
+	 * 编号
+	 * @return
+     */
 	public String getExtId() {
 		return extId;
 	}
+
+	/**
+	 * 设置编号
+	 * @param extId
+     */
 	public void setExtId(String extId) {
 		this.extId = extId;
 	}
@@ -152,7 +177,7 @@ public final class BizUser extends BaseModel{
 	}
 
 	/**
-	 * 添加单个别名，系统上限5个
+	 * 添加单个别名，系统上限为5个，别名如未包括 @域名 则自动增加
 	 * 
 	 * @param slave
 	 * @return true成功、false失败
@@ -160,6 +185,10 @@ public final class BizUser extends BaseModel{
 	public boolean addSlave(String slave) {
 		if (null == this.slave) {
 			this.slave = new ArrayList<String>();
+		}
+		int pos = slave.indexOf('@');
+		if (pos < 0) {
+			slave = BizMail.getAlias(slave);
 		}
 		if (this.slave.size() >= 5 && !this.slave.contains(slave)) {
 			return false;

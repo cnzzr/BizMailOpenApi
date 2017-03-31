@@ -83,17 +83,26 @@ public class BizUserService extends BaseService {
 	/**
 	 * 获取成员资料
 	 * 
-	 * @param alias
-	 * @return
+	 * @param alias 主帐号 或者 别名
+	 * @return null表示帐号不存在
 	 * @throws BizMailException
 	 */
 	public BizUser query(String alias) throws BizMailException {
 		Map<String, String> queryParam = new LinkedHashMap<String, String>(2);
 		queryParam.put("alias", alias);
-		String responseTxt = ApiGet(OpenApiConst.USER_GET_URL, queryParam);
-		logger.debug(responseTxt);
-		BizUser bizUser = JSONPARSER.parse(responseTxt, BizUser.class);
-		return bizUser;
+		try {
+			String responseTxt = ApiGet(OpenApiConst.USER_GET_URL, queryParam);
+			logger.debug(responseTxt);
+			BizUser bizUser = JSONPARSER.parse(responseTxt, BizUser.class);
+			return bizUser;
+		}catch (BizMailException bme){
+			// BizMail接口出错[1301]user_not_found
+			if ("1301".equals(bme.getErrcode())) {
+				return null;
+			} else {
+				throw bme;
+			}
+		}
 	}
 	
 	final String RESP_JSON_AUTHKEY="auth_key";//AuthKey
@@ -131,7 +140,7 @@ public class BizUserService extends BaseService {
 	 * 用户一键登录地址，指定自定义域名（不建议）
 	 *
 	 * @param alias
-	 * @param domainUrl
+	 * @param domailUrl
 	 * @return
 	 * @throws BizMailException
 	 */
@@ -199,10 +208,15 @@ public class BizUserService extends BaseService {
 		}
 		bizUser.setAction(OpenApiConst.OP_ADD);
 		bizUser.setOpenType(OpenApiConst.ENABLE_USER);
-		Map<String, Object> formData = bizUser.toPostForm();
 		// 处理密码为MD5
+		Map<String, Object> formData = bizUser.toPostForm();//20170327 使用Map仅能创建一个别名的帐号
 		boolean r = fixPassword(formData);
 		String responseTxt = ApiPost(OpenApiConst.USER_SYNC_URL, formData);//添加成功无返回
+// TODO 实现添加多个邮箱别名
+//		String bizUserQuery = bizUser.serialize();
+//		logger.debug(bizUserQuery);
+//		String responseTxt = ApiGet(OpenApiConst.USER_SYNC_URL, bizUserQuery);
+
 		logger.debug(responseTxt);
 		return true;
 	}
@@ -288,7 +302,7 @@ public class BizUserService extends BaseService {
 	}
 	
 	/**
-	 * 获取系统只所有帐号的清单
+	 * 获取系统中所有帐号的清单
 	 * 	应用于人员信息同步或数据初始化
 	 *
 	 * @return List
@@ -345,16 +359,19 @@ public class BizUserService extends BaseService {
 		Object pwdObj = formData.get("Password");
 		if (pwdObj == null || StringUtil.isBlank(pwdObj.toString())) {
 			formData.remove("Password");
+			formData.remove("Md5");
 			return false;
 		}
-		String pwd = pwdObj.toString();
-		if (pwd.length() < 6) {
-			// 密码长度不够
-		}
-		// 支持修改密码
-		String md5Pwd = Md5Utils.md5(pwdObj.toString());
-		formData.put("Md5", "1");
-		formData.put("Password", md5Pwd);
+		//密码加密移至 setPassword中实现
+//		String pwd = pwdObj.toString();
+//		if (pwd.length() < 6) {
+//			// 密码长度不够
+//		}
+//		// 支持修改密码
+//		String md5Pwd = Md5Utils.md5(pwdObj.toString());
+//		formData.put("Md5", "1");
+//		formData.put("Password", md5Pwd);
 		return true;
 	}
+
 }
