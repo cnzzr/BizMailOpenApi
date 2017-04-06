@@ -67,10 +67,28 @@ public class OpenApiConst {
 //	public static final String CLIENT_SECRET = "";
 //	public static final String CLIENT_ID = "";
 
+	/**
+	 *  添加
+	 */
 	public static final String OP_ADD = "2";
+
+	/**
+	 * 删除
+	 */
 	public static final String OP_DEL = "1";
+
+	/**
+	 * 修改
+	 */
 	public static final String OP_MOD = "3";
 
+	/**
+	 * 成员状态：禁用帐号
+	 */
 	public static final String DISABLE_USER = "2";
+
+	/**
+	 * 成员状态：启用
+	 */
 	public static final String ENABLE_USER = "1";
 }

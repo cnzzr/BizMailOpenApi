@@ -4,11 +4,12 @@
 
 	<groupId>cn.msdi.BizMailOpenApi</groupId>
 	<artifactId>BizMailOpenApi</artifactId>
-	<version>0.1.0</version>
 	<packaging>jar</packaging>
 
+	<version>0.1.0</version>
+
 	<name>BizMailOpenApi</name>
-	<url>http://www.msdi.cn/cn</url>
+	<url>http://www.msdi.cn/</url>
 
 	<properties>
 		<jdk.version>1.6</jdk.version>
