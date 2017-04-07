@@ -208,16 +208,19 @@ public class BizUserService extends BaseService {
 		}
 		bizUser.setAction(OpenApiConst.OP_ADD);
 		bizUser.setOpenType(OpenApiConst.ENABLE_USER);
-		String bizUserQuery = bizUser.serialize();
-		logger.debug(bizUserQuery);
-		// 处理密码为MD5
-		Map<String, Object> formData = bizUser.toPostForm();//20170327 使用Map仅能创建一个别名的帐号
-		boolean r = fixPassword(formData);
-		String responseTxt = ApiPost(OpenApiConst.USER_SYNC_URL, formData);//添加成功无返回
-// TODO 实现添加多个邮箱别名
-//		String responseTxt = ApiGet(OpenApiConst.USER_SYNC_URL, bizUserQuery);
 
-		logger.debug(responseTxt);
+		String bizUserParam = bizUser.serialize();
+		logger.debug(bizUserParam);
+		if (bizUser.getSlave() == null && bizUser.getPartyPath() == null) {
+			Map<String, Object> formData = bizUser.toPostForm();//20170327 使用Map仅能创建一个别名的帐号
+			// 处理密码为MD5
+			//boolean r = fixPassword(formData);
+			String responseTxt = ApiPost(OpenApiConst.USER_SYNC_URL, formData);//添加成功无返回
+		} else {
+			// 实现添加多个邮箱别名
+			String responseTxt = ApiGet(OpenApiConst.USER_SYNC_URL, bizUserParam);
+		}
+;
 		return true;
 	}
 
@@ -231,14 +234,16 @@ public class BizUserService extends BaseService {
      */
 	public boolean modify(BizUser bizUser) throws BizMailException {
 		bizUser.setAction(OpenApiConst.OP_MOD);
-		bizUser.setOpenType(OpenApiConst.ENABLE_USER);
-		Map<String, Object> formData = bizUser.toPostForm();
+		//bizUser.setOpenType(OpenApiConst.ENABLE_USER);
 		logger.debug("修改成员帐号：" + bizUser.serialize());
-		// 处理密码为MD5
-		boolean r = fixPassword(formData);
-//		String responseTxt = ApiPost(OpenApiConst.USER_SYNC_URL, formData);//修改操作无返回
-		String responseTxt = ApiGet(OpenApiConst.USER_SYNC_URL,bizUser.serialize()); //fix 使用Get请求解决添加多个邮箱别名的问题
-		logger.debug(responseTxt);
+		if (bizUser.getSlave() == null && bizUser.getPartyPath() == null) {
+			Map<String, Object> formData = bizUser.toPostForm();
+			// 处理密码为MD5
+			//boolean r = fixPassword(formData);
+			String responseTxt = ApiPost(OpenApiConst.USER_SYNC_URL, formData);//修改操作无返回
+		} else {
+			String responseTxt = ApiGet(OpenApiConst.USER_SYNC_URL, bizUser.serialize()); //fix 使用Get请求解决添加多个邮箱别名的问题
+		}
 		return true;
 	}
 
