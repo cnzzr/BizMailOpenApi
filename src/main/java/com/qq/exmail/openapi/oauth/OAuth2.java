@@ -32,7 +32,7 @@ public final class OAuth2 extends BizMail{
 
 	private OClient client = null;
 	private Token token = null;
-	private TokenShare tshare = null;
+	private TokenShare tokenShareClass = null;
 
 	/**
 	 * 单例 得到类的实例
@@ -85,11 +85,11 @@ public final class OAuth2 extends BizMail{
 		String tokenShare = BizMail.getTokenShareClass();
 		if (StringUtil.isNotBlank(tokenShare)) {
 			try {
-				tshare = (TokenShare) Class.forName(tokenShare).newInstance();
+				this.tokenShareClass = (TokenShare) Class.forName(tokenShare).newInstance();
 			} catch (ClassNotFoundException cne) {
 				//配置有误
-			} catch(Exception exc){
-
+				logger.error("BizMail配置文件 bizmail.properties配置项tokenshare对应的类未找到.");
+			} catch (Exception exc) {
 			}
 		}
 
@@ -101,17 +101,7 @@ public final class OAuth2 extends BizMail{
 	 * @return Token
 	 */
 	public Token refresh(){
-//		if (token != null) {
-//			synchronized (lockObject) {
-//				token = null;
-//			}
-//			logger.info("企业邮接口 触发 [1200] invalid_token");
-//
-//			if(null!=tshare){
-//				tshare.remove();
-//			}
-//		}
-		logger.info("企业邮接口 触发 [1200] invalid_token");
+		logger.info("Bizmail refresh token.");
 		return getToken(true);
 	}
 
@@ -124,38 +114,58 @@ public final class OAuth2 extends BizMail{
 		return getToken(false);
 	}
 
-	public Token getToken(boolean refresh) {
-        // 1、应用首次启动从 TokenShare中加载，null或无效则重新请求；2、Refresh时直接请求Token
-        if (null != tshare) {
-            if (!refresh) {
-                Token tokenFromShare = tshare.get();
-                if (tokenFromShare != null && tokenFromShare.isValid()
-                        && (token == null || !token.getAccess_token().equals(tokenFromShare.getAccess_token())) // 确保共享Token为新值
-                        ) {
-                    synchronized (lockObject) {
-                        token = tokenFromShare;
-                        return token;
-                    }
-                }
-            }
-        }
+	public Token getToken(boolean needRefresh) {
+		//无Token 共享的情况
+        if (null == tokenShareClass) {
+			if(needRefresh){
+				synchronized (lockObject) {
+					Token tokenRefresh = requestToken();
+					if (null != tokenRefresh) {
+						long now = System.currentTimeMillis() - 60000;// 考虑Http请求的耗时预防 access_token 过期
+						tokenRefresh.setCreateDate(new Date(now));
+						token = tokenRefresh;
+					}
+				}
+			}
+			return token;
+		} else {
+			if(!needRefresh && token!=null){
+				return token;
+			}
 
-        if (refresh || token == null || !token.isValid()) {
-            synchronized (lockObject) {
-                Token tokenRefresh = requestToken();
-                if (null != tokenRefresh) {
-                    long now = System.currentTimeMillis() - 60000;// 考虑Http请求的耗时预防 access_token 过期
-                    tokenRefresh.setCreateDate(new Date(now));
-                    token = tokenRefresh;
-                }
-            }
-            if (null != tshare && null != token) {
-                tshare.put(token);
-            }
-        }
+			// 满足以下条件时从 TokenShare中加载
+			// 1、ts不为null并且有效；
+			// 2.1、应用首次启动 或者
+			// 2.2 Refresh Token时 当前token != ts
+			Token tokenFromShare = tokenShareClass.get();
+			if (tokenFromShare != null && tokenFromShare.isValid()) {
+				// 确保共享Token为新值
+				if (token == null || !token.getAccess_token().equals(tokenFromShare.getAccess_token())) {
+					synchronized (lockObject) {
+						token = tokenFromShare;
+						logger.debug("Bizmail get token from share.");
+						return token;
+					}
+				}
+			}
 
-        return token;
-    }
+			synchronized (lockObject) {
+				Token tokenRefresh = requestToken();
+				if (null != tokenRefresh) {
+					long now = System.currentTimeMillis() - 60000;// 考虑Http请求的耗时预防 access_token 过期
+					tokenRefresh.setCreateDate(new Date(now));
+					token = tokenRefresh;
+					logger.debug("Bizmail request token success.");
+				}
+			}
+			if (null != token) {
+				tokenShareClass.put(token);
+				logger.debug("Bizmail put token to share.");
+			}
+
+			return token;
+		}
+	}
 
 	private Token requestToken() {
 		HttpRequest request = HttpRequest.post(OpenApiConst.TOKEN_URL);
